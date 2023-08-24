@@ -10,6 +10,7 @@ public class ReturnMenu : MonoBehaviour
     public void OnMenuButtonClick()
     {
         SceneManager.LoadScene("SceneMenu");
+        MusicManager.instance.PlayMenuMusic();
     }
     
 }

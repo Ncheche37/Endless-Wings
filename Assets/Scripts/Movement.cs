@@ -7,6 +7,7 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class Movement : MonoBehaviour
 {
+    public static Movement instance { get; private set; }
     [SerializeField]
     private float translationSpeed;
     private const float MIN_X = -9.70f;
@@ -25,7 +26,14 @@ public class Movement : MonoBehaviour
 
     private AudioSource audioSource;
     public AudioClip collisionSound;
-    
+
+    private bool isSlowedDown = false;
+    private float slowdownStartTime;
+    private float normalMoveSpeed;
+
+    private ParticleSystem collisionParticles;
+
+
 
 
 
@@ -36,6 +44,8 @@ public class Movement : MonoBehaviour
         transform.position = new Vector3(0, 0.1f, 0);
 
         audioSource = GetComponent<AudioSource>();
+        collisionParticles = GetComponentInChildren<ParticleSystem>();
+
     }
 
     // Update is called once per frame
@@ -93,7 +103,24 @@ public class Movement : MonoBehaviour
         }
 
 
-        transform.position += transform.forward * currentSpeed;
+        if (!isSlowedDown)
+        {
+            transform.position += transform.forward * currentSpeed;
+        }
+        else
+        {
+            float timeSinceSlowdown = Time.time - slowdownStartTime;
+            if(timeSinceSlowdown < 0.1f)
+            {
+                transform.position += transform.forward * currentSpeed * 0.5f;
+            }
+            else
+            {
+                isSlowedDown = false;
+                moveSpeed = normalMoveSpeed; // Rétablir la vitesse normale
+                ResetTimeScale();
+            }
+        }
 
 
 
@@ -107,25 +134,47 @@ public class Movement : MonoBehaviour
         {
             GameController.Instance.Health -= 10;
 
-            if(collisionSound != null && audioSource != null)
+            if (collisionSound != null && audioSource != null)
             {
                 audioSource.PlayOneShot(collisionSound);
+                isSlowedDown = true;
+                normalMoveSpeed = moveSpeed;
+                moveSpeed = 0.1f;
+                ResetMoveSpeed();
+                ResetTimeScale();
+                slowdownStartTime = Time.time; // Enregistrer le temps de début du ralentissement
             }
-            
+
+            if (collisionParticles != null)
+            {
+                collisionParticles.Play();
+            }
+
             if (GameController.Instance.Health <= 0)
             {
-               
+                
                 GameOver();
             }
+            
         }
         
     }
 
     private void GameOver()
     {
-        
+       
         SceneManager.LoadScene("GameOver");
     }
 
-   
+   private void ResetTimeScale()
+    {
+        Time.timeScale = 1;
+    }
+
+   private void ResetMoveSpeed()
+    {
+        moveSpeed = 0.3f;
+    }
+
+    
 }

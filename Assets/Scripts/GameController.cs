@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using SQLite;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class GameController : MonoBehaviour
 {
@@ -22,10 +18,10 @@ public class GameController : MonoBehaviour
     private Image HealthBarGreen;
     [SerializeField]
     public float Score;
-    [SerializeField]
-    private Text ScoreText;
+    
+    public Text ScoreText;
 
-   
+
     
 
 
@@ -53,10 +49,12 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         Bird = GameObject.Find("Bird");
         GroundsOnStage = new GameObject[NumberOfGrounds];
+        
 
-        for(int i = 0; i < NumberOfGrounds; i++)
+        for (int i = 0; i < NumberOfGrounds; i++)
         {
             int n = Random.Range(0, GroundsPrefabs.Length);
             GroundsOnStage[i] = Instantiate(GroundsPrefabs[n]);
@@ -72,6 +70,12 @@ public class GameController : MonoBehaviour
         }
 
         Score = 0;
+
+        MusicManager.instance.StopMenuMusic();
+        
+
+
+
     }
 
     // Update is called once per frame
@@ -101,8 +105,9 @@ public class GameController : MonoBehaviour
             ScoreText.text = "Score : " + Mathf.Round(Score).ToString();
         }
 
+       
 
-        
+
     }
     
 
